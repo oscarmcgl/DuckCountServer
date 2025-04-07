@@ -2,6 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const { google } = require("googleapis");
 
+const cors = require("cors");
+app.use(cors()); // Replace with your GitHub Pages URL
+
 const app = express();
 app.use(bodyParser.json());
 
