@@ -10,7 +10,7 @@ const SHEET_NAME = "DuckGuesses";
 
 // Authenticate with the service account
 const auth = new google.auth.GoogleAuth({
-  keyFile: "path-to-service-account-key.json", // Replace with the path to your JSON key file
+  credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY), // Load the key from an environment variable
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 });
 
