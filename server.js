@@ -48,7 +48,7 @@ app.post("/add", async (req, res) => {
     const sheets = google.sheets({ version: "v4", auth: await auth.getClient() });
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A:B`,
+      range: `${SHEET_NAME}!A2:B`,
       valueInputOption: "USER_ENTERED",
       resource: {
         values: [[object, duck_count]],
@@ -73,7 +73,7 @@ app.get("/guesses", async (req, res) => {
     const sheets = google.sheets({ version: "v4", auth: await auth.getClient() });
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A:B`,
+      range: `${SHEET_NAME}!A2:B`,
     });
 
     const rows = response.data.values || [];
