@@ -1,15 +1,32 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const { google } = require("googleapis");
-
 const cors = require("cors");
-app.use(cors()); // Replace with your GitHub Pages URL
 
-const app = express();
-app.use(bodyParser.json());
+const app = express(); // Initialize the Express app
+
+// CORS configuration
+const allowedOrigins = [
+  "https://oscarmcglone.com", // Your custom domain
+  "http://localhost:3000",   // Local development
+  "http://127.0.0.1:3000"    // Localhost with IP
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true); // Allow the request
+    } else {
+      callback(new Error("Not allowed by CORS")); // Reject the request
+    }
+  },
+};
+
+app.use(cors(corsOptions)); // Use the CORS middleware
+app.use(bodyParser.json()); // Middleware to parse JSON requests
 
 const SPREADSHEET_ID = "1nHVC5ahA0qOj4uE05YKWb3Fn3BjGSu_Uq8_ZXJ4cm_0";
-const SHEET_NAME = "DuckGuesses"; 
+const SHEET_NAME = "DuckGuesses";
 
 // Authenticate with the service account
 const auth = new google.auth.GoogleAuth({
@@ -20,6 +37,10 @@ const auth = new google.auth.GoogleAuth({
 // Add a new duck count to the Google Sheet
 app.post("/add", async (req, res) => {
   const { object, duck_count } = req.body;
+
+  if (!object || !duck_count) {
+    return res.status(400).send("Missing object or duck_count");
+  }
 
   try {
     const sheets = google.sheets({ version: "v4", auth: await auth.getClient() });
@@ -41,6 +62,10 @@ app.post("/add", async (req, res) => {
 // Get all guesses for a specific object from the Google Sheet
 app.get("/guesses", async (req, res) => {
   const { object } = req.query;
+
+  if (!object) {
+    return res.status(400).send("Missing object");
+  }
 
   try {
     const sheets = google.sheets({ version: "v4", auth: await auth.getClient() });
