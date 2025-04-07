@@ -8,8 +8,10 @@ const app = express(); // Initialize the Express app
 // CORS configuration
 const allowedOrigins = [
   "https://oscarmcglone.com", // Your custom domain
+  "https://duck.oscarmcglone.com", // Duck domain
   "http://localhost:3000",   // Local development
-  "http://127.0.0.1:3000"    // Localhost with IP
+  "http://127.0.0.1:3000",    // Localhost with IP
+  "http://127.0.0.1:5500",    // Localhost with IP and port 5500
 ];
 
 const corsOptions = {
