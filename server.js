@@ -22,9 +22,17 @@ const corsOptions = {
       callback(new Error("Not allowed by CORS")); // Reject the request
     }
   },
+  methods: ["GET", "POST", "OPTIONS"], // Allow these HTTP methods
+  allowedHeaders: ["Content-Type"],    // Allow these headers
+  credentials: true                   // Allow credentials (if needed)
 };
 
-app.use(cors(corsOptions)); // Use the CORS middleware
+// Use CORS middleware
+app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options("*", cors(corsOptions)); // Handle OPTIONS requests for all routes
+
 app.use(bodyParser.json()); // Middleware to parse JSON requests
 
 const SPREADSHEET_ID = "1nHVC5ahA0qOj4uE05YKWb3Fn3BjGSu_Uq8_ZXJ4cm_0";
@@ -35,6 +43,7 @@ const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY), // Load the key from an environment variable
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 });
+
 
 // Add a new duck count to the Google Sheet
 app.post("/add", async (req, res) => {
