@@ -48,7 +48,7 @@ app.post("/add", async (req, res) => {
     const sheets = google.sheets({ version: "v4", auth: await auth.getClient() });
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A2:B`,
+      range: `${SHEET_NAME}!A2:B1000`, // Use a more explicit range
       valueInputOption: "USER_ENTERED",
       resource: {
         values: [[object, duck_count]],
@@ -73,13 +73,13 @@ app.get("/guesses", async (req, res) => {
     const sheets = google.sheets({ version: "v4", auth: await auth.getClient() });
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A2:B`,
+      range: `${SHEET_NAME}!A2:B1000`, // Use a more explicit range
     });
 
     const rows = response.data.values || [];
     const guesses = rows
-      .filter(row => row[0] === object)
-      .map(row => parseInt(row[1], 10))
+      .filter(row => row[0] === object) // Match the object
+      .map(row => parseInt(row[1], 10)) // Parse the guess as an integer
       .filter(Number.isFinite);
 
     res.status(200).json(guesses);
