@@ -7,40 +7,35 @@ const app = express(); // Initialize the Express app
 
 // CORS configuration
 const allowedOrigins = [
-  "https://oscarmcglone.com", // Your custom domain
-  "https://duck.oscarmcglone.com", // Duck domain
-  "http://localhost:3000",   // Local development
-  "http://127.0.0.1:3000",    // Localhost with IP
-  "http://127.0.0.1:5500",    // Localhost with IP and port 5500
+  "https://oscarmcglone.com", 
+  "https://duck.oscarmcglone.com", 
 ];
 
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true); // Allow the request
+      callback(null, true); 
     } else {
-      callback(new Error("Not allowed by CORS")); // Reject the request
+      callback(new Error("Not allowed by CORS")); 
     }
   },
-  methods: ["GET", "POST", "OPTIONS"], // Allow these HTTP methods
-  allowedHeaders: ["Content-Type"],    // Allow these headers
-  credentials: true                   // Allow credentials (if needed)
+  methods: ["GET", "POST", "OPTIONS"], 
+  allowedHeaders: ["Content-Type"],   
+  credentials: true                   
 };
 
-// Use CORS middleware
+
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); 
 
-// Handle preflight requests explicitly
-app.options("*", cors(corsOptions)); // Handle OPTIONS requests for all routes
-
-app.use(bodyParser.json()); // Middleware to parse JSON requests
+app.use(bodyParser.json()); 
 
 const SPREADSHEET_ID = "1nHVC5ahA0qOj4uE05YKWb3Fn3BjGSu_Uq8_ZXJ4cm_0";
 const SHEET_NAME = "DuckGuesses";
 
 // Authenticate with the service account
 const auth = new google.auth.GoogleAuth({
-  credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY), // Load the key from an environment variable
+  credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY), 
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 });
 
@@ -57,7 +52,7 @@ app.post("/add", async (req, res) => {
     const sheets = google.sheets({ version: "v4", auth: await auth.getClient() });
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A2:B1000`, // Use a more explicit range
+      range: `${SHEET_NAME}!A2:B`, 
       valueInputOption: "USER_ENTERED",
       resource: {
         values: [[object, duck_count]],
@@ -82,13 +77,13 @@ app.get("/guesses", async (req, res) => {
     const sheets = google.sheets({ version: "v4", auth: await auth.getClient() });
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A2:B1000`, // Use a more explicit range
+      range: `${SHEET_NAME}!A2:B`, 
     });
 
     const rows = response.data.values || [];
     const guesses = rows
-      .filter(row => row[0] === object) // Match the object
-      .map(row => parseInt(row[1], 10)) // Parse the guess as an integer
+      .filter(row => row[0] === object) 
+      .map(row => parseInt(row[1], 10)) 
       .filter(Number.isFinite);
 
     res.status(200).json(guesses);
@@ -96,6 +91,11 @@ app.get("/guesses", async (req, res) => {
     console.error("Error fetching guesses:", error);
     res.status(500).send("Failed to fetch guesses");
   }
+});
+
+//Health Check for Uptime Robot
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
 });
 
 // Start the server
