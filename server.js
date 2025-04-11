@@ -8,22 +8,33 @@ const app = express(); // Initialize the Express app
 // CORS configuration
 const allowedOrigins = [
   "https://oscarmcglone.com", 
-  "https://duck.oscarmcglone.com", 
+  "https://duck.oscarmcglone.com",
 ];
 
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true); 
+      callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS")); 
+      callback(new Error("Not allowed by CORS"));
     }
   },
-  methods: ["GET", "POST", "OPTIONS"], 
-  allowedHeaders: ["Content-Type"],   
-  credentials: true                   
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"],
+  credentials: true,
 };
 
+// Add a middleware to handle preflight requests
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.header("Access-Control-Allow-Credentials", "true");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204); // No Content
+  }
+  next();
+});
 
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions)); 
